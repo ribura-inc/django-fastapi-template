@@ -1,0 +1,156 @@
+@startuml 
+
+    class "Explanation of the symbols used" as DESCRIPTION #FFF {
+    - AutoField (identifiers)
+    ..
+    + Regular field (anything)
+    ..
+    # ForeignKey (ManyToMany)
+    ..
+    ~ ForeignKey (OneToOne, OneToMany)
+    --
+}
+
+
+class "admin.LogEntry <管理>" as admin.LogEntry #f4d6f1 {
+    ログエントリー
+    ..
+    LogEntry(id, action_time, user, content_type, object_id, object_repr,
+action_flag, change_message)
+    --
+    - id (AutoField) - 
+    + action_time (DateTimeField) - 
+    ~ user (ForeignKey) - 
+    ~ content_type (ForeignKey) - 
+    + object_id (TextField) - 
+    + object_repr (CharField) - 
+    + action_flag (PositiveSmallIntegerField) - 
+    + change_message (TextField) - 
+    --
+}
+admin.LogEntry -- app.User
+admin.LogEntry -- contenttypes.ContentType
+admin.LogEntry .-- action_flag
+
+
+class "auth.Permission <認証と認可>" as auth.Permission #e8f4d6 {
+    パーミッション
+    ..
+    The permissions system provides a way to assign permissions to specific
+    users and groups of users.
+    The permission system is used by the Django admin site, but may also be
+    useful in your own code. The Django admin site uses permissions as follows:
+        - The "add" permission limits the user's ability to view the "add" form
+          and add an object.
+        - The "change" permission limits a user's ability to view the change
+          list, view the "change" form and change an object.
+        - The "delete" permission limits the ability to delete an object.
+        - The "view" permission limits the ability to view an object.
+    Permissions are set globally per type of object, not per specific object
+    instance. It is possible to say "Mary may change news stories," but it's
+    not currently possible to say "Mary may change news stories, but only the
+    ones she created herself" or "Mary may only change news stories that have a
+    certain status or publication date."
+    The permissions listed above are automatically created for each model.
+    --
+    - id (AutoField) - 
+    + name (CharField) - 
+    ~ content_type (ForeignKey) - 
+    + codename (CharField) - 
+    --
+}
+auth.Permission -- contenttypes.ContentType
+
+
+class "auth.Group <認証と認可>" as auth.Group #e8f4d6 {
+    グループ
+    ..
+    Groups are a generic way of categorizing users to apply permissions, or
+    some other label, to those users. A user can belong to any number of
+    groups.
+    A user in a group automatically has all the permissions granted to that
+    group. For example, if the group 'Site editors' has the permission
+    can_edit_home_page, any user in that group will have that permission.
+    Beyond permissions, groups are a convenient way to categorize users to
+    apply some label, or extended functionality, to them. For example, you
+    could create a group 'Special users', and you could write code that would
+    do special things to those users -- such as giving them access to a
+    members-only portion of your site, or sending them members-only email
+    messages.
+    --
+    - id (AutoField) - 
+    + name (CharField) - 
+    # permissions (ManyToManyField) - 
+    --
+}
+auth.Group *--* auth.Permission
+
+
+class "contenttypes.ContentType <コンテンツタイプ>" as contenttypes.ContentType #d6f4de {
+    コンテンツタイプ
+    ..
+    ContentType(id, app_label, model)
+    --
+    - id (AutoField) - 
+    + app_label (CharField) - 
+    + model (CharField) - 
+    --
+}
+
+
+class "sessions.Session <セッション>" as sessions.Session #f4e1d6 {
+    セッション
+    ..
+    Django provides full support for anonymous sessions. The session
+    framework lets you store and retrieve arbitrary data on a
+    per-site-visitor basis. It stores data on the server side and
+    abstracts the sending and receiving of cookies. Cookies contain a
+    session ID -- not the data itself.
+    The Django sessions framework is entirely cookie-based. It does
+    not fall back to putting session IDs in URLs. This is an intentional
+    design decision. Not only does that behavior make URLs ugly, it makes
+    your site vulnerable to session-ID theft via the "Referer" header.
+    For complete documentation on using Sessions in your code, consult
+    the sessions documentation that is shipped with Django (also available
+    on the Django web site).
+    --
+    + session_key (CharField) - 
+    + session_data (TextField) - 
+    + expire_date (DateTimeField) - 
+    --
+}
+
+
+class "app.User <App>" as app.User #d6e7f4 {
+    ユーザー
+    ..
+    User(password, last_login, id, uid, created_at, updated_at, username, email,
+is_active, is_admin, is_superuser, is_staff)
+    --
+    + password (CharField) - 
+    + last_login (DateTimeField) - 
+    + id (BigAutoField) - 
+    + uid (CharField) - 
+    + created_at (DateTimeField) - 
+    + updated_at (DateTimeField) - 
+    + username (CharField) - 
+    + email (EmailField) - 
+    + is_active (BooleanField) - 
+    + is_admin (BooleanField) - 
+    + is_superuser (BooleanField) - 
+    + is_staff (BooleanField) - ユーザーが管理サイトにログイン可能かどうかを示します。
+    # groups (ManyToManyField) - このユーザーが所属するグループ。ユーザーはそれぞれのグループに付与されたすべての権限を持ちます。
+    # user_permissions (ManyToManyField) - このユーザーの持つ権限です。
+    --
+}
+app.User *--* auth.Group
+app.User *--* auth.Permission
+
+
+enum "action_flag <choices>" as action_flag #EEE{
+    + 1 - (1, '追加')
+    + 2 - (2, '変更')
+    + 3 - (3, '削除')
+}
+
+@enduml

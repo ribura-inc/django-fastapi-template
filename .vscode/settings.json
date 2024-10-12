@@ -1,0 +1,6 @@
+{
+  // jsonファイルをjsoncとして扱う
+  "files.associations": {
+    "*.json": "jsonc"
+  }
+}

@@ -1,0 +1,48 @@
+repos:
+  # linter/formatter(python)
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  # type checker
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.6.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - "pydantic"
+          - "types-PyYAML"
+          - "types-pytz"
+          - "fastapi"
+          - "types-requests"
+        args: ["--no-warn-return-any"]
+  # others
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^docs/models_diagram.puml
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=100000"]
+      - id: detect-private-key
+      - id: no-commit-to-branch
+        args: [--branch, main]
+  # ローカルスクリプト
+  - repo: local
+    hooks:
+      - id: export-openapi
+        name: Export OpenAPI
+        entry: scripts/export_openapi.sh
+        language: script
+        require_serial: true
+  - repo: local
+    hooks:
+      - id: generate-models-diagram
+        name: Generate Models Diagram
+        entry: scripts/generate_models_diagram.sh
+        language: script
+        require_serial: true

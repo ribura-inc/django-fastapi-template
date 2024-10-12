@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: .
+    volumes:
+      - .:/backend
+    ports:
+      - 8000:8000
+    tty: true
+    env_file:
+      - backend.env
+    links:
+      - db
+    command: [
+        "python",
+        "-m",
+        "uvicorn",
+        "config.asgi:fastapi_app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload", # 開発時はホットリロードを有効にする
+      ]
+  db:
+    image: postgres:13
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432 # ホスト側の5432ポートは既に使われている事が多いので5433とマッピング
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  psql_data:
